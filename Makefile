@@ -1,19 +1,8 @@
-ERL ?= erl
-APP := webhooks
+PROJECT = webhooks
+include erlang.mk
 
-.PHONY: deps
+qc:
+	rebar co skip_deps=true
 
-all: deps
-	@rebar compile
-
-deps:
-	@rebar get-deps
-
-clean:
-	@rebar clean
-
-distclean: clean
-	@rebar delete-deps
-
-docs:
-	@erl -noshell -run edoc_run application '$(APP)' '"."' '[]'
+run:
+	erl -pa ebin -pa deps/*/ebin -eval 'application:ensure_all_started(webhooks).'

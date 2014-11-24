@@ -1,0 +1,6 @@
+.git
+erl_crash.dump
+fig.yml
+.rebar
+deps
+ebin

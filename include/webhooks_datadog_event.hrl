@@ -1,4 +1,4 @@
--record(datadog_event, {
+-record(webhooks_datadog_event, {
   title :: nonempty_string(), % The event title. Limited to 100 characters.
   text :: nonempty_string(), % The body of the event. Limited to 4000 characters.
   date_happened :: 'undefined' | string(), % POSIX timestamp of the event. [default=now]

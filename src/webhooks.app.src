@@ -1,21 +1,18 @@
-%%-*- mode: erlang -*-
-{application, webhooks,
- [
-  {description, "transform output from one webhook and send it to another"},
-  {vsn, "1"},
-  {modules, []},
-  {registered, []},
-  {applications, [
-                  kernel,
-                  stdlib,
-                  inets,
-                  crypto,
-                  mochiweb,
-                  webmachine
-                 ]},
-  {mod, { webhooks_app, []}},
-  {env, [
-      {web_ip, "0.0.0.0"},
-      {web_port, 80}
-  ]}
- ]}.
+{application, webhooks, [
+	{description, ""},
+	{vsn, "0.1.0"},
+	{id, "git"},
+	{modules, []},
+	{registered, []},
+	{applications, [
+		kernel,
+		stdlib,
+		asn1,
+		public_key,
+		ssl,
+		cowboy,
+		ibrowse
+	]},
+	{mod, {webhooks_app, []}},
+	{env, []}
+]}.
