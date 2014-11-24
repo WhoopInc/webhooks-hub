@@ -1,0 +1,10 @@
+{application,webhooks,
+             [{description,"transform output from one webhook and send it to another"},
+              {vsn,"1"},
+              {modules,[webhooks,webhooks_app,webhooks_config,
+                        webhooks_datadog,webhooks_docker,webhooks_resource,
+                        webhooks_sup]},
+              {registered,[]},
+              {applications,[kernel,stdlib,inets,crypto,mochiweb,webmachine]},
+              {mod,{webhooks_app,[]}},
+              {env,[{web_ip,"0.0.0.0"},{web_port,80}]}]}.

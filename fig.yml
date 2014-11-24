@@ -1,0 +1,6 @@
+webhooks:
+  build: .
+  volumes:
+    - .:/webhooks
+  ports:
+    - "80:80"
