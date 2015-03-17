@@ -1,4 +1,6 @@
 -module(webhooks_hipchat).
+
+%% Sending messages
 -export([
   message_room/1
 , message_room/3
@@ -6,6 +8,60 @@
 , message_room/5
 ]).
 
+%% Getting webhooks
+-export([init/3, init/2]).
+-export([
+  allowed_methods/2
+, content_types_provided/2
+, content_types_accepted/2
+]).
+-export([json_in/2]).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Webhooks
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+init(Req, Opts) ->
+    {cowboy_rest, Req, Opts}.
+init(_, _Req, _Opts) ->
+    {upgrade, protocol, cowboy_rest}.
+
+allowed_methods(Req, State) ->
+    {[<<"POST">>], Req, State}.
+
+content_types_accepted(Req, State) ->
+    {[
+      {<<"application/json">>, json_in}
+     ], Req, State}.
+
+-spec extract_sender(binary()) -> string().
+extract_message_parts(JsonBinary) ->
+    Parsed = jiffy:decode(JsonBinary, [return_maps]),
+    #{<<"item">> := #{
+	  <<"message">> := #{
+	      <<"from">> := #{
+		  <<"name">> := FromName
+		 },
+	      <<"message">> := Message
+	     },
+	  <<"room">> := #{
+	      <<"name">> := RoomName
+	     }
+	 }
+     } = Parsed,
+    {FromName, RoomName, Message}.
+
+json_in(Req, State) ->
+    lager:info("Got a Hipchat webhook post"),
+    {ok, Body, Req2} = cowboy_req:body(Req),
+    {FromName, RoomName, Message} = extract_sender(Body),
+    OutMessage = io_lib:format("_Message to ~w:_ ~w", [RoomName, Message]),
+    OutSender = io_lib:format("Hipchat/~w", [FromName]),
+    webhooks_slack:send_message(OutSender, OutMessage).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Message-sending
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 get_auth_token() ->
   case os:getenv("HIPCHAT_AUTH_TOKEN") of
     false ->

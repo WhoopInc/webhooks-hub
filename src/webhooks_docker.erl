@@ -54,21 +54,28 @@ json_in(Req, State) ->
   {true, Req2, State}.
 
 perform_callback(CallbackUrl, Ok, Description, TargetUrl) ->
-  lager:info("Post callback back to Docker Registry"),
-  State = case Ok of
-    true ->
-      <<"success">>;
-    _ ->
-      <<"error">>
-  end,
+    State = case Ok of
+		true ->
+		    <<"success">>;
+		_ ->
+		    <<"error">>
+	    end,
 
-  JsonOut = jiffy:encode(#{
-    <<"state">> => State,
-    <<"description">> => Description,
-    <<"target_url">> => TargetUrl
-  }),
-  Result = ibrowse:send_req(binary_to_list(CallbackUrl),
-                            [{"Content-Type", "application/json"}],
-                            post,
-                            JsonOut,
-                            [{content_type, "application/json"}]).
+    JsonOut = jiffy:encode(#{
+			      <<"state">> => State,
+			      <<"description">> => Description,
+			      <<"target_url">> => TargetUrl
+			    }),
+
+    lager:info("Post Docker callback back to ~p: ~p", [CallbackUrl, JsonOut]),
+    Result = ibrowse:send_req(binary_to_list(CallbackUrl),
+			      [{"Content-Type", "application/json"}],
+			      post,
+			      JsonOut,
+			      [{content_type, "application/json"}]),
+    case Result of
+	{ok, Status, _, Body} ->
+	    lager:info("Callback OK: ~p ~p", [Status, Body]);
+	{error, Reason} ->
+	    lager:info("Error: ~p", [Reason])
+    end.
